@@ -5,35 +5,72 @@ var estraverse = require("estraverse");
 
 // Forward Declarations
 var Explainer;
-var TemplateEngine;
 
-Explainer = function(codeFile) {
-    this.codeFile = codeFile;
-    this.templateEngine = new TemplateEngine({});
-
-    this.init();
+// Template Spec
+var templates = {
+    "VariableDeclarator": function(node) {
+        var template = "Declare a new variable called \"{varName}\", and set it's value to \"{varVal}\"";
+        return template
+            .replace("{varName}", node.id.name)
+            .replace("{varVal}", node.init.value);
+    }
 };
 
-Explainer.prototype.init = function() {
-    // TODO
+Explainer = function(code) {
+    this.userCode = code;
+    this.templates = templates;
+    this.abstractSyntaxTree = null;
 };
 
-/**
- * TemplateEngine(ts)
- * Used to generate "human readable" variants of Javascript code.
- * @author Gigabyte Giant (2015)
- */
-TemplateEngine = function(templateSpecs) {
-    this.templates = templateSpecs;
+Explainer.prototype.explain = function(node) {
+    // TODO: Make this recursive, maybe?
+    if (this.templates.hasOwnProperty(node.type)) {
+        console.log(this.templates[node.type](node));
+    }
 };
 
-/**
- * TemplateEngine.rewrite(n)
- * Rewrite a parse tree into human readable code, based on templates stored in
- *  TemplateEngine.templates.
- * @author Gigabyte Giant (2015)
- * @param {Object} node: An esprima parse tree node.
- */
-TemplateEngine.prototype.rewrite = function(node) {
-    // TODO
+Explainer.prototype.run = function() {
+    this.abstractSyntaxTree = esprima.parse(this.userCode);
+
+    if (this.abstractSyntaxTree !== null) {
+        var self = this;
+        estraverse.traverse(this.abstractSyntaxTree, {
+            enter: function(node) {
+                console.log(node.type);
+
+                switch (node.type) {
+                    case "VariableDeclarator":
+                        self.explain(node);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
 };
+
+var removeSpareLines = function(code) {
+    var actualCode = [];
+
+    for (var i = 0; i < code.split("\n").length; i++) {
+        if (code.split("\n")[i] !== "") {
+            actualCode.push(code.split("\n")[i]);
+        }
+    }
+
+    return actualCode.join("\n");
+};
+
+fs.readFile("testCode.js", "utf8", function(error, code) {
+    if (error) {
+        throw error;
+    } else {
+        if (code.length > 0) {
+            console.log(code);
+
+            var myExplainer = new Explainer(removeSpareLines(code));
+            myExplainer.run();
+        }
+    }
+});
