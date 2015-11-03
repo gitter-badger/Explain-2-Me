@@ -1,5 +1,22 @@
+// Node.js imports
+var fs = require("fs");
+var esprima = require("esprima");
+var estraverse = require("estraverse");
+
 // Forward Declarations
+var Explainer;
 var TemplateEngine;
+
+Explainer = function(codeFile) {
+    this.codeFile = codeFile;
+    this.templateEngine = new TemplateEngine({});
+
+    this.init();
+};
+
+Explainer.prototype.init = function() {
+    // TODO
+};
 
 /**
  * TemplateEngine(ts)
