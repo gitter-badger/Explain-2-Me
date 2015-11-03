@@ -1,0 +1,10 @@
+{
+    "name": "explain-2-me",
+    "version": "0.0.1",
+    "description": "An experiment",
+    "repository": "https://github.com/Gigabyte-Giant/Explain-2-Me",
+    "author": "Gigabyte Giant <brynden.bielefeld@hotmail.com>",
+    "dependencies": {
+        "esprima": "^2.7.0"
+    }
+}
